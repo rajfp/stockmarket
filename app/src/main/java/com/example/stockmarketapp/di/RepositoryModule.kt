@@ -3,6 +3,7 @@ package com.example.stockmarketapp.di
 
 import com.example.stockmarketapp.data.csv.CSVParser
 import com.example.stockmarketapp.data.csv.CompanyListingsParser
+import com.example.stockmarketapp.data.csv.IntradayInfoParser
 import com.example.stockmarketapp.data.repository.StockRepoImpl
 import com.example.stockmarketapp.domain.model.CompanyListing
 import com.example.stockmarketapp.domain.model.IntradayInfo
@@ -23,11 +24,11 @@ abstract class RepositoryModule {
         companyListingsParser: CompanyListingsParser
     ): CSVParser<CompanyListing>
 
-//    @Binds
-//    @Singleton
-//    abstract fun bindIntradayInfoParser(
-//        intradayInfoParser: IntradayInfoParser
-//    ): CSVParser<IntradayInfo>
+    @Binds
+    @Singleton
+    abstract fun bindIntradayInfoParser(
+        intradayInfoParser: IntradayInfoParser
+    ): CSVParser<IntradayInfo>
 
     @Binds
     @Singleton

@@ -2,6 +2,7 @@ package com.example.stockmarketapp.data.repository
 
 import com.example.stockmarketapp.data.csv.CSVParser
 import com.example.stockmarketapp.data.local.StockDatabase
+import com.example.stockmarketapp.data.mapper.toCompanyInfo
 import com.example.stockmarketapp.data.mapper.toCompanyListing
 import com.example.stockmarketapp.data.mapper.toCompanyListingEntity
 import com.example.stockmarketapp.data.remote.StockApi
@@ -21,9 +22,11 @@ import javax.inject.Singleton
 class StockRepoImpl @Inject constructor(
     database: StockDatabase,
     private val stockApi: StockApi,
-    private val companyListingsParser: CSVParser<CompanyListing>
+    private val companyListingsParser: CSVParser<CompanyListing>,
+    private val intradayInfoParser: CSVParser<IntradayInfo>
 
-) : StockRepository {
+
+    ) : StockRepository {
 
     private val dao = database.dao
     override suspend fun getCompanyListings(
@@ -71,10 +74,38 @@ class StockRepoImpl @Inject constructor(
     }
 
     override suspend fun getIntradayInfo(symbol: String): Resource<List<IntradayInfo>> {
-        TODO("Not yet implemented")
+        return try {
+            val response = stockApi.getIntradayInfo(symbol)
+            val results = intradayInfoParser.parse(response.byteStream())
+            Resource.Success(results)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Resource.Error(
+                message = "Couldn't load intraday info"
+            )
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            Resource.Error(
+                message = "Couldn't load intraday info"
+            )
+        }
     }
 
     override suspend fun getCompanyInfo(symbol: String): Resource<CompanyInfo> {
-        TODO("Not yet implemented")
+        return try {
+            val result = stockApi.getCompanyInfo(symbol)
+            Resource.Success(result.toCompanyInfo())
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Resource.Error(
+                message = "Couldn't load company info"
+            )
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            Resource.Error(
+                message = "Couldn't load company info"
+            )
+        }
     }
+
 }
